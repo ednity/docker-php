@@ -1,5 +1,27 @@
-FROM php:5.6.21-apache
+FROM php:5.5.35-apache
+
+RUN set -x \
+  && a2enmod rewrite \
+  && apt-get update -qq \
+  && apt-get install -yqq \
+    libfreetype6 \
+    libjpeg62-turbo \
+    libmcrypt4 \
+    libpng12-0 \
+    --no-install-recommends \
+  && buildDeps=" \
+  	libfreetype6-dev \
+    libjpeg62-turbo-dev \
+  	libmcrypt-dev \
+  	libpng12-dev \
+  	" \
+  && apt-get install -yqq $buildDeps --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/* \
+  && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
+  && docker-php-ext-install -j$(nproc) gd \
+  && docker-php-ext-install -j$(nproc) exif \
+	&& docker-php-ext-install -j$(nproc) mcrypt \
+	&& docker-php-ext-install -j$(nproc) pdo_mysql \
+	&& apt-get purge -y --auto-remove $buildDeps
 
 ADD php.ini /usr/local/etc/php/conf.d/php.ini
-RUN a2enmod rewrite
-RUN docker-php-ext-install pdo_mysql
