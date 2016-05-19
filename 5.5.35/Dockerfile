@@ -1,7 +1,7 @@
 FROM php:5.5.35-apache
 
 RUN set -x \
-  && a2enmod rewrite \
+  && a2enmod rewrite headers \
   && apt-get update -qq \
   && apt-get install -yqq \
     libfreetype6 \
